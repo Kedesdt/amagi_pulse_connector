@@ -1,7 +1,7 @@
 from tools import get_show_id_by_name
 from amagi_commander import Amagi_commander
 from serial_commander import SerialCommander
-from config import BASE_URL, TOKEN, FEED_CODE, DATE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY
+from config import BASE_URL, TOKEN, FEED_CODE, DATE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
 
 amagi_commander = Amagi_commander(BASE_URL, TOKEN, FEED_CODE)
 
@@ -26,7 +26,7 @@ def main():
         print(f"Show ID for '{show_name}': {show_id}")
         amagi_commander.set_show_id(show_id)
         
-        serial_commander = SerialCommander(port="COM3", baudrate=9600, timeout=1, on_cts=on_cts_change, on_dsr=on_dsr_change)
+        serial_commander = SerialCommander(port=SERIAL_PORT, baudrate=9600, timeout=1, on_cts=on_cts_change, on_dsr=on_dsr_change)
         serial_commander.start()
         serial_commander.join()
     else:

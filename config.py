@@ -21,3 +21,4 @@ FEED_CODE = _env("FEED_CODE", "")
 HEADEND = int(_env("HEADEND", "1"))
 TAKE_NEXT_ACTION_NAME = _env("ACTION_NAME", "take_next")
 DELAY = float(_env("DELAY", "0"))  # Delay em segundos
+SERIAL_PORT = _env("SERIAL_PORT", "COM3")
