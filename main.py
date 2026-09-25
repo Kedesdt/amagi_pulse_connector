@@ -1,7 +1,7 @@
 from tools import get_show_id_by_name
 from amagi_commander import Amagi_commander
 from serial_commander import SerialCommander
-from config import BASE_URL, TOKEN, FEED_CODE, DATE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
+from config import BASE_URL, TOKEN, FEED_CODE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
 
 amagi_commander = Amagi_commander(BASE_URL, TOKEN, FEED_CODE)
 
