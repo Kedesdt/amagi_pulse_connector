@@ -18,6 +18,7 @@ class SerialCommander(threading.Thread):
         try:
             self.serial_connection = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             print(f"Connected to {self.port} at {self.baudrate} baud.")
+            self.serial_connection.setRTS(False)
         except serial.SerialException as e:
             print(f"Error connecting to serial port: {e}")
 
@@ -28,9 +29,10 @@ class SerialCommander(threading.Thread):
     def run(self):
         self.connect()
         while True:
-            time.sleep(0.01)  # Check every 100ms
+            time.sleep(0.01)  # Check every 10ms
             cts = self.serial_connection.getCTS()
             dsr = self.serial_connection.getDSR()
+
             if cts != self.cts:
                 self.cts = cts
                 if self.on_cts:
@@ -39,6 +41,7 @@ class SerialCommander(threading.Thread):
                 self.dsr = dsr
                 if self.on_dsr:
                     self.on_dsr(dsr)
+  
         self.disconnect()
 
 
