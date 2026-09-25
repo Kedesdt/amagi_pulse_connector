@@ -4,6 +4,7 @@ import time
 
 class SerialCommander(threading.Thread):
     def __init__(self, port, baudrate=9600, timeout=1, on_cts=None, on_dsr=None):
+        super().__init__()
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
