@@ -3,6 +3,7 @@ import time
 from amagi_commander import Amagi_commander
 from serial_commander import SerialCommander
 from config import BASE_URL, TOKEN, FEED_CODE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
+import threading
 
 amagi_commander = Amagi_commander(BASE_URL, TOKEN, FEED_CODE)
 
@@ -19,20 +20,26 @@ def on_cts_change(cts):
 def on_dsr_change(dsr):
     pass
 
+def update_show_id_from_live_playlist():
+    last_your = time.strftime("%H", time.localtime(time.time()))
+    amagi_commander.update_show_id_from_live_playlist()
+    while True:
+        if last_your != time.strftime("%H", time.localtime(time.time())):
+            last_your = time.strftime("%H", time.localtime(time.time()))
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            print(f"[{timestamp}] updating show_id from live playlist...")
+            amagi_commander.update_show_id_from_live_playlist()
+    
+
 def main():
     global show_id
-    show_name = input("Enter the show name to get its ID: ")
-    show_id = get_show_id_by_name(BASE_URL, TOKEN, show_name)
     
-    if show_id:
-        print(f"Show ID for '{show_name}': {show_id}")
-        amagi_commander.set_show_id(show_id)
-        
-        serial_commander = SerialCommander(port=SERIAL_PORT, baudrate=9600, timeout=1, on_cts=on_cts_change, on_dsr=on_dsr_change)
-        serial_commander.start()
-        serial_commander.join()
-    else:
-        print("Show ID not found. Exiting.")
+    amagi_commander.update_show_id_from_live_playlist()    
+    serial_commander = SerialCommander(port=SERIAL_PORT, baudrate=9600, timeout=1, on_cts=on_cts_change, on_dsr=on_dsr_change)
+    serial_commander.start()
+    threading.Thread(target=update_show_id_from_live_playlist, daemon=True).start()
+    serial_commander.join()
+
 
 if __name__ == "__main__":
     main()

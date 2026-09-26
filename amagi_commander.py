@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import datetime
 import time
+from tools import find_playing_show
 
 
 class Amagi_commander():
@@ -17,6 +18,14 @@ class Amagi_commander():
         self.token = token
     def set_feed_code(self, feed_code):
         self.feed_code = feed_code
+    
+    def update_show_id_from_live_playlist(self):
+        show = find_playing_show(self.base_url, self.token)
+        if show:
+            self.set_show_id(show)
+            print(f"Updated show_id to: {self.show_id}")
+        else:
+            print("No show is currently airing.")
 
     def action(self, action_name="take_next", take_type="segment", epoch=int(time.time())*1000, log=False):
 
