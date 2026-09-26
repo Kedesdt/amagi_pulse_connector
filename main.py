@@ -1,4 +1,5 @@
 from tools import get_show_id_by_name
+import time
 from amagi_commander import Amagi_commander
 from serial_commander import SerialCommander
 from config import BASE_URL, TOKEN, FEED_CODE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
@@ -9,7 +10,8 @@ show_id = None
 
 def on_cts_change(cts):
     if not cts:
-        print("CTS is ON. Enviando TAKE NEXT para Amagi...")
+        t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        print(t, "CTS is ON. Enviando TAKE NEXT para Amagi...")
         amagi_commander.action(action_name=TAKE_NEXT_ACTION_NAME)
     else:
         print("CTS is OFF.")

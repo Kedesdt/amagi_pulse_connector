@@ -17,6 +17,7 @@ class SerialCommander(threading.Thread):
     def connect(self):
         try:
             self.serial_connection = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
+            
             print(f"Connected to {self.port} at {self.baudrate} baud.")
             self.serial_connection.setRTS(False)
         except serial.SerialException as e:
