@@ -24,11 +24,13 @@ def update_show_id_from_live_playlist():
     last_your = time.strftime("%H", time.localtime(time.time()))
     amagi_commander.update_show_id_from_live_playlist()
     while True:
+        time.sleep(1)
         if last_your != time.strftime("%H", time.localtime(time.time())):
             last_your = time.strftime("%H", time.localtime(time.time()))
             timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             print(f"[{timestamp}] updating show_id from live playlist...")
             amagi_commander.update_show_id_from_live_playlist()
+
     
 
 def main():
