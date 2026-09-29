@@ -12,6 +12,7 @@ def on_cts_change(cts):
     if not cts:
         t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
         print(t, "CTS is ON. Enviando TAKE NEXT para Amagi...")
+        time.sleep(float(DELAY))
         amagi_commander.action(action_name=TAKE_NEXT_ACTION_NAME)
     else:
         print("CTS is OFF.")
