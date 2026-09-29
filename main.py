@@ -28,6 +28,7 @@ def update_show_id_from_live_playlist():
     while True:
         time.sleep(1)
         if last_your != time.strftime("%H", time.localtime(time.time())):
+            time.sleep(60)            
             last_your = time.strftime("%H", time.localtime(time.time()))
             timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             print(f"[{timestamp}] updating show_id from live playlist...")
