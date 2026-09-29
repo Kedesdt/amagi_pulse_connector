@@ -13,7 +13,7 @@ def on_cts_change(cts):
     if not cts:
         t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
         print(t, f"CTS is ON. Enviando TAKE NEXT para Amagi em {DELAY} segundos...")
-        time.sleep(DELAY)
+        time.sleep(float(DELAY))
         print(t, f"Enviando TAKE NEXT para Amagi...")
         amagi_commander.action(action_name=TAKE_NEXT_ACTION_NAME)
     else:
