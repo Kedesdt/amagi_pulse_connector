@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pulse Connector</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Georgia, "Times New Roman", serif;
+            background: #e8edf2;
+            color: #17212b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e8edf2 0%, #f8f5ee 100%);
+        }
+
+        .shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0 64px;
+        }
+
+        header {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        h1, h2, p { margin-top: 0; }
+        h1 { margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: 0; }
+        h2 { margin-bottom: 8px; font-size: 1.35rem; }
+        header p, .subtle { margin-bottom: 0; color: #66727d; }
+
+        .eyebrow {
+            margin-bottom: 10px;
+            color: #b45b32;
+            font: 700 0.75rem/1.2 "Segoe UI", sans-serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 15px;
+            border: 1px solid #cbd5dc;
+            border-radius: 999px;
+            background: #ffffffaa;
+            font: 700 0.9rem "Segoe UI", sans-serif;
+            white-space: nowrap;
+        }
+
+        .status-badge::before {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #b42318;
+            content: "";
+        }
+
+        .status-badge.active::before { background: #16803c; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.6fr);
+            gap: 20px;
+        }
+
+        .panel {
+            padding: 26px;
+            border: 1px solid #d2dbe1;
+            border-radius: 10px;
+            background: #ffffffd9;
+            box-shadow: 0 16px 40px rgb(23 33 43 / 9%);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .system-state {
+            margin: 34px 0;
+            padding: 22px;
+            border-left: 4px solid #b45b32;
+            background: #f4eee5;
+        }
+
+        .system-state strong { display: block; margin-bottom: 8px; font-size: 1.45rem; }
+        button {
+            border: 0;
+            border-radius: 7px;
+            padding: 11px 15px;
+            background: #173f56;
+            color: white;
+            cursor: pointer;
+            font: 700 0.9rem "Segoe UI", sans-serif;
+        }
+        button:hover { background: #235c78; }
+        button:disabled { cursor: wait; opacity: 0.6; }
+        .secondary { background: #dfe7eb; color: #173f56; }
+        .secondary:hover { background: #cbd8df; }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr auto;
+            align-items: end;
+            gap: 10px;
+            padding: 16px;
+            border: 1px solid #d9e1e5;
+            border-radius: 8px;
+            background: #f7f9f9;
+        }
+
+        label { display: grid; gap: 6px; color: #52606d; font: 700 0.75rem "Segoe UI", sans-serif; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #c8d3da; border-radius: 6px; background: white; color: #17212b; font: 0.95rem "Segoe UI", sans-serif; }
+        .filter-list { display: grid; gap: 8px; margin-top: 20px; }
+        .day-row { display: grid; grid-template-columns: 100px 1fr; gap: 14px; align-items: center; padding: 13px 0; border-bottom: 1px solid #e2e7ea; }
+        .day-name { font-weight: 700; text-transform: capitalize; }
+        .intervals { display: flex; flex-wrap: wrap; gap: 8px; }
+        .interval { display: inline-flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 5px; background: #e9f0f1; color: #173f56; font: 0.88rem "Segoe UI", sans-serif; }
+        .remove { padding: 0 4px; background: transparent; color: #a33d2e; font-size: 1rem; }
+        .remove:hover { background: transparent; color: #701d15; }
+        .empty { color: #84919a; font: 0.9rem "Segoe UI", sans-serif; }
+        #message { min-height: 1.25rem; margin: 14px 0 0; color: #52606d; font: 0.9rem "Segoe UI", sans-serif; }
+        .save-row { display: flex; justify-content: end; margin-top: 18px; }
+
+        @media (max-width: 760px) {
+            .shell { padding-top: 28px; }
+            header { display: block; }
+            .status-badge { margin-top: 20px; }
+            .layout { grid-template-columns: 1fr; }
+            .filter-form { grid-template-columns: 1fr 1fr; }
+            .filter-form button { grid-column: span 2; }
+        }
+
+        @media (max-width: 430px) {
+            .shell { width: min(100% - 20px, 1120px); }
+            .panel { padding: 18px; }
+            .filter-form { grid-template-columns: 1fr; }
+            .filter-form button { grid-column: auto; }
+            .day-row { grid-template-columns: 1fr; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header>
+            <div>
+                <div class="eyebrow">Pulse connector</div>
+                <h1>Painel de operação</h1>
+                <p>Controle o envio de pulsos e os horários de bloqueio.</p>
+            </div>
+            <div id="statusBadge" class="status-badge">Carregando status</div>
+        </header>
+
+        <div class="layout">
+            <section class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Sistema</h2>
+                        <p class="subtle">Ative ou pause o processamento.</p>
+                    </div>
+                </div>
+                <div class="system-state">
+                    <strong id="statusText">Carregando...</strong>
+                    <span id="statusDescription">Consultando o estado atual.</span>
+                </div>
+                <button id="toggle" type="button" disabled>Carregando...</button>
+                <p id="statusMessage" class="subtle"></p>
+            </section>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Filtros de pulso</h2>
+                        <p class="subtle">Adicione períodos em que os pulsos serão ignorados.</p>
+                    </div>
+                </div>
+
+                <form id="filterForm" class="filter-form">
+                    <label>Dia
+                        <select id="day" required></select>
+                    </label>
+                    <label>Início
+                        <input id="start" type="time" required>
+                    </label>
+                    <label>Fim
+                        <input id="end" type="time" required>
+                    </label>
+                    <button type="submit">Adicionar</button>
+                </form>
+
+                <div id="filterList" class="filter-list">Carregando filtros...</div>
+                <div class="save-row">
+                    <button id="saveFilters" type="button">Salvar filtros</button>
+                </div>
+                <p id="message" aria-live="polite"></p>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const days = [
+            ["segunda", "Segunda-feira"], ["terca", "Terça-feira"],
+            ["quarta", "Quarta-feira"], ["quinta", "Quinta-feira"],
+            ["sexta", "Sexta-feira"], ["sabado", "Sábado"], ["domingo", "Domingo"]
+        ];
+        let filters = {};
+        let active = false;
+        const daySelect = document.getElementById("day");
+        const list = document.getElementById("filterList");
+        const message = document.getElementById("message");
+
+        days.forEach(([key, label]) => {
+            filters[key] = [];
+            daySelect.add(new Option(label, key));
+        });
+
+        function minutesToTime(minutes) {
+            const hour = String(Math.floor(minutes / 60)).padStart(2, "0");
+            const minute = String(minutes % 60).padStart(2, "0");
+            return `${hour}:${minute}`;
+        }
+
+        function timeToMinutes(value) {
+            const [hour, minute] = value.split(":").map(Number);
+            return hour * 60 + minute;
+        }
+
+        function renderFilters() {
+            list.innerHTML = "";
+            days.forEach(([key, label]) => {
+                const row = document.createElement("div");
+                row.className = "day-row";
+                const intervals = filters[key] || [];
+                const content = intervals.length
+                    ? intervals.map(([start, end], index) => `
+                        <span class="interval">
+                            ${minutesToTime(start)} - ${minutesToTime(end)}
+                            <button class="remove" type="button" data-day="${key}" data-index="${index}" aria-label="Remover intervalo">×</button>
+                        </span>`).join("")
+                    : `<span class="empty">Nenhum período bloqueado</span>`;
+                row.innerHTML = `<strong class="day-name">${label}</strong><div class="intervals">${content}</div>`;
+                list.appendChild(row);
+            });
+        }
+
+        async function loadFilters() {
+            const response = await fetch("/get_pulse_filter");
+            if (!response.ok) throw new Error("Não foi possível carregar os filtros.");
+            filters = (await response.json()).filters;
+            renderFilters();
+        }
+
+        async function saveFilters() {
+            const response = await fetch("/set_pulse_filter", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filters })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || "Não foi possível salvar os filtros.");
+            filters = data.filters;
+            renderFilters();
+            message.textContent = "Filtros salvos.";
+        }
+
+        document.getElementById("filterForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            filters[daySelect.value].push([timeToMinutes(start.value), timeToMinutes(end.value)]);
+            renderFilters();
+            message.textContent = "Intervalo adicionado. Clique em salvar filtros para aplicar.";
+            event.target.reset();
+        });
+
+        list.addEventListener("click", (event) => {
+            if (!event.target.classList.contains("remove")) return;
+            const { day, index } = event.target.dataset;
+            filters[day].splice(Number(index), 1);
+            renderFilters();
+            message.textContent = "Intervalo removido. Clique em salvar filtros para aplicar.";
+        });
+
+        document.getElementById("saveFilters").addEventListener("click", () => {
+            saveFilters().catch((error) => { message.textContent = error.message; });
+        });
+
+        const statusBadge = document.getElementById("statusBadge");
+        const statusText = document.getElementById("statusText");
+        const statusDescription = document.getElementById("statusDescription");
+        const toggleButton = document.getElementById("toggle");
+
+        function updateStatusView() {
+            statusBadge.textContent = active ? "Sistema ativo" : "Sistema inativo";
+            statusBadge.classList.toggle("active", active);
+            statusText.textContent = active ? "Ativo" : "Inativo";
+            statusDescription.textContent = active ? "Os pulsos podem ser processados." : "O envio de pulsos está pausado.";
+            toggleButton.textContent = active ? "Desativar sistema" : "Ativar sistema";
+        }
+
+        async function loadStatus() {
+            const response = await fetch("/get_active");
+            if (!response.ok) throw new Error("Não foi possível consultar o status.");
+            active = Boolean((await response.json()).active);
+            updateStatusView();
+            toggleButton.disabled = false;
+        }
+
+        toggleButton.addEventListener("click", async () => {
+            toggleButton.disabled = true;
+            try {
+                const response = await fetch("/set_active", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ active: !active })
+                });
+                if (!response.ok) throw new Error("Não foi possível atualizar o status.");
+                active = !active;
+                updateStatusView();
+                document.getElementById("statusMessage").textContent = "Status atualizado.";
+            } catch (error) {
+                document.getElementById("statusMessage").textContent = error.message;
+            } finally {
+                toggleButton.disabled = false;
+            }
+        });
+
+        Promise.all([loadStatus(), loadFilters()]).catch((error) => { message.textContent = error.message; });
+    </script>
+</body>
+</html>
