@@ -74,7 +74,10 @@ class Manager:
         
 
     def main(self):
-        self.amagi_commander.update_show_id_from_live_playlist()
+        try:
+            self.amagi_commander.update_show_id_from_live_playlist()
+        except Exception as e:
+            print(f"Error updating show ID from live playlist: {e}")
         self.serial_commander = SerialCommander(port=SERIAL_PORT, baudrate=9600, timeout=1, on_cts=self.on_cts_change, on_dsr=self.on_dsr_change)
         self.serial_commander.start()
         self.api_commander = ApiCommander(callback=self.on_action, host="0.0.0.0", port=1708, set_active=self.set_active, get_active=self.get_active)
