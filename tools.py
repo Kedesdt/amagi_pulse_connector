@@ -33,9 +33,17 @@ def is_show_currently_airing(show):
 
 def find_playing_show(base_url, token):
     shows = find_shows_in_live_playlist(base_url, token)
+    if not shows:
+        return generate_show_id()
     for show in shows:
         if is_show_currently_airing(show):
             return show.get("show_id")
+    return generate_show_id()
+
+def generate_show_id():
+    """Gera o show id no formato YYYYMMDD-050000-show"""
+    now = datetime.now(timezone.utc)
+    return now.strftime("%Y%m%d-050000-show")
 
 def find_shows_in_live_playlist(base_url, token):
     live_playlist = find_live_playlist(base_url, token)
