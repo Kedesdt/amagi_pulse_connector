@@ -17,8 +17,9 @@ class PulseFilter:
 
     def __init__(self, filters=None):
         self.filters = {day: [] for day in self.DAYS}
-        self.replace_filters(filters or {})
         self.load_from_file()  # Carrega os filtros do arquivo JSON ao inicializar a classe
+        self.replace_filters(filters or {})
+        
 
     def load_from_file(self, file_path=".\\ignorar.json"):
         try:
