@@ -41,8 +41,10 @@ def find_playing_show(base_url, token):
     return generate_show_id()
 
 def generate_show_id():
-    """Gera o show id no formato YYYYMMDD-050000-show"""
+    """Gera o show id considerando a virada do dia as 05:00."""
     now = datetime.now()
+    if now.hour < 5:
+        now -= timedelta(days=1)
     return now.strftime("%Y%m%d-050000-show")
 
 def find_shows_in_live_playlist(base_url, token):
