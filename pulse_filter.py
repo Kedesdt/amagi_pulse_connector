@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import json
 
 class PulseFilter:
     """Decide se um pulso pode ser enviado conforme o dia e o horario."""
@@ -14,9 +14,29 @@ class PulseFilter:
         "domingo",
     )
 
+
     def __init__(self, filters=None):
         self.filters = {day: [] for day in self.DAYS}
         self.replace_filters(filters or {})
+        self.load_from_file()  # Carrega os filtros do arquivo JSON ao inicializar a classe
+
+    def load_from_file(self, file_path=".\\ignorar.json"):
+        try:
+            with open(file_path, "r") as f:
+                filters = json.load(f)
+                self.replace_filters(filters)
+        except FileNotFoundError:
+            print(f"Arquivo {file_path} nao encontrado. Usando filtros padrao.")
+        except json.JSONDecodeError:
+            print(f"Erro ao decodificar o arquivo {file_path}. Usando filtros padrao.")
+
+    def save_file(self, filters, file_path=".\\ignorar.json"):
+        try:
+            with open(file_path, "w") as f:
+                json.dump(filters, f, indent=4)
+        except IOError as e:
+            print(f"Erro ao salvar o arquivo {file_path}: {e}")
+
 
     def replace_filters(self, filters):
         new_filters = {day: [] for day in self.DAYS}
@@ -25,6 +45,7 @@ class PulseFilter:
                 raise ValueError(f"Dia invalido: {day}")
             new_filters[day] = [self._validate_interval(interval) for interval in intervals]
         self.filters = new_filters
+        self.save_file(self.filters)
         return self.filters
 
     @staticmethod
@@ -56,7 +77,7 @@ class PulseFilter:
         if day not in self.filters:
             raise ValueError(f"Dia invalido: {day}")
         self.filters[day].append(self._validate_interval((start, end)))
-
+        self.save_file(self.filters)
 
 # Mantem compatibilidade com o nome usado anteriormente.
 Pulse_filter = PulseFilter

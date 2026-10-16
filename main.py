@@ -5,19 +5,22 @@ from amagi_commander import Amagi_commander
 from serial_commander import SerialCommander
 from pulse_filter import PulseFilter
 from config import BASE_URL, TOKEN, FEED_CODE, HEADEND, TAKE_NEXT_ACTION_NAME, DELAY, SERIAL_PORT
+import argparse
 import threading
 
 
 
 
 class Manager:
-    def __init__(self):
+    def __init__(self, show_id=None):
         self.active = True
-        self.show_id = None
+        self.show_id = show_id
         self.pulse_filter = PulseFilter()
         self.serial_commander = None #Definido em main()
         self.api_commander = None # Definido em main()
         self.amagi_commander = Amagi_commander(BASE_URL, TOKEN, FEED_CODE)
+        if show_id:
+            self.amagi_commander.set_show_id(show_id)
 
     def on_cts_change(self, cts):
         if not cts:
@@ -71,13 +74,16 @@ class Manager:
         
 
     def main(self):
-        
-        self.amagi_commander.update_show_id_from_live_playlist()    
+        try:
+            self.amagi_commander.update_show_id_from_live_playlist()
+        except Exception as e:
+            print(f"Error updating show ID from live playlist: {e}")
         self.serial_commander = SerialCommander(port=SERIAL_PORT, baudrate=9600, timeout=1, on_cts=self.on_cts_change, on_dsr=self.on_dsr_change)
         self.serial_commander.start()
         self.api_commander = ApiCommander(callback=self.on_action, host="0.0.0.0", port=1708, set_active=self.set_active, get_active=self.get_active)
         self.api_commander.start()
         self.api_commander.set_pulse_filter(self.pulse_filter)
+        
         threading.Thread(target=self.update_show_id_from_live_playlist, daemon=True).start()
         try:
             self.serial_commander.join()
@@ -89,5 +95,12 @@ class Manager:
 
 
 if __name__ == "__main__":
-    manager = Manager()
+    parser = argparse.ArgumentParser(description="Inicia o conector do Pulse.")
+    parser.add_argument(
+        "--show-id",
+        help="ID do show que sera usado nas acoes enviadas ao Amagi.",
+    )
+    args = parser.parse_args()
+
+    manager = Manager(show_id=args.show_id)
     manager.main()
