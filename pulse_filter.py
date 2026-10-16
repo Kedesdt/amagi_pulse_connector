@@ -17,8 +17,8 @@ class PulseFilter:
 
     def __init__(self, filters=None):
         self.filters = {day: [] for day in self.DAYS}
-        self.load_from_file()  # Carrega os filtros do arquivo JSON ao inicializar a classe
-        self.replace_filters(filters or {})
+        if not self.load_from_file()  # Carrega os filtros do arquivo JSON ao inicializar a classe
+            self.replace_filters(filters or {})
         
 
     def load_from_file(self, file_path=".\\ignorar.json"):
@@ -26,10 +26,14 @@ class PulseFilter:
             with open(file_path, "r") as f:
                 filters = json.load(f)
                 self.replace_filters(filters)
+            return True
         except FileNotFoundError:
             print(f"Arquivo {file_path} nao encontrado. Usando filtros padrao.")
+            
         except json.JSONDecodeError:
             print(f"Erro ao decodificar o arquivo {file_path}. Usando filtros padrao.")
+        finally:
+            return False
 
     def save_file(self, filters, file_path=".\\ignorar.json"):
         try:
@@ -40,12 +44,16 @@ class PulseFilter:
 
 
     def replace_filters(self, filters):
+        print("Filtros substituidos:", self.filters)
+        print("Filtros novos:", filters)
+
         new_filters = {day: [] for day in self.DAYS}
         for day, intervals in filters.items():
             if day not in self.filters:
                 raise ValueError(f"Dia invalido: {day}")
             new_filters[day] = [self._validate_interval(interval) for interval in intervals]
         self.filters = new_filters
+        print("Filtros finais:", self.filters)
         self.save_file(self.filters)
         return self.filters
 

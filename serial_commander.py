@@ -67,11 +67,13 @@ class SerialCommanderFake():
         self.on_dsr = on_dsr
         self.cts = True
         self.dsr = True
+        self.running= True
 
     def start(self):
         print(f"Fake SerialCommander started on {self.port} at {self.baudrate} baud.")
+        
         # Simulate CTS and DSR changes
-        time.sleep(10)
+        """time.sleep(10)
         self.cts = False
         if self.on_cts:
             self.on_cts(self.cts)
@@ -94,7 +96,17 @@ class SerialCommanderFake():
         time.sleep(10)
         self.cts = True
         if self.on_cts:
-            self.on_cts(self.cts)
+            self.on_cts(self.cts)"""
+    def run(self):
+        while self.running:
+            time.sleep(1)
 
-    def join(self):
+    def join(self, timeout=None):
         print("Fake SerialCommander finished.")
+        while self.running:
+            time.sleep(1)
+
+    def stop(self):
+        self.running = False
+        print("Fake SerialCommander stopped.")
+
